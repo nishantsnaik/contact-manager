@@ -16,25 +16,25 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact findOne(Long contactId) {
         return Contact.builder().contactId(12345).firstName("Nishant").lastName("Naik").gender("M").middleName("S")
-                .dateOfBirth(LocalDate.MIN).build();
+                .build();
     }
 
     @Override
     public Contact findOne(String lastName, String firstName, String dateOfBirth) {
         return Contact.builder().contactId(67890).firstName("Nishant").lastName("Naik").gender("M").middleName("S")
-                .dateOfBirth(LocalDate.MIN).build();
+                .build();
     }
 
     @Override
     public Contact createContact(Contact contact) {
         return Contact.builder().contactId(21354).firstName("Nishant").lastName("Naik").gender("M").middleName("S")
-                .dateOfBirth(LocalDate.MIN).build();
+                .build();
     }
 
     @Override
     public Contact update(Long contactId, Contact contact) {
         return Contact.builder().contactId(95675).firstName("Nishant").lastName("Naik").gender("M").middleName("S")
-                .dateOfBirth(LocalDate.MIN).build();
+                .build();
     }
 
     @Override

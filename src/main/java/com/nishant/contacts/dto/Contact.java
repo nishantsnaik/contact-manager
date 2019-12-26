@@ -45,5 +45,5 @@ public class Contact {
 
     @ApiModelProperty(notes="Date format should be in: yyyy-MM-dd")
     @Past
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
 }

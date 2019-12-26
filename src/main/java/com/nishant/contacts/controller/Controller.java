@@ -6,8 +6,11 @@ import com.nishant.contacts.service.ContactService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +29,8 @@ public class Controller {
     TODO Add log4j
     TODO remove hard coding in service layer
     TODO Do not expose contactID in post, return it back in response
+    TODO dateofbirth correct conversion as applicable
+    TODO dateofbirth input to check for correct format
      */
 
     @GetMapping("id/{contactId)")
@@ -73,8 +78,13 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =201, message = "Created"),
             @ApiResponse(code =400, message = "Bad Request-Contact Already exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact createContact(@RequestBody Contact contact){
-        return service.createContact(contact);
+    public ResponseEntity<Object> createContact(@RequestBody Contact contact){
+
+        Contact createdContact =service.createContact(contact);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{contactId}")
+                .buildAndExpand(createdContact.getContactId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping("{contactId)")
