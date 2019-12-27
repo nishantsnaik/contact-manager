@@ -8,7 +8,7 @@ public interface ContactService {
 
     public List<Contact> findAll();
     public Contact findOne(Long contactId);
-    public Contact findOne(String lastName, String firstName, String dateOfBirth);
+    public List<Contact> findContactByLastNameAndFirstNameAndDateOfBirth(String lastName, String firstName, String dateOfBirth);
     public Contact createContact(Contact contact);
     public Contact update(Long contactId,  Contact contact);
     public void delete(Long contactId);

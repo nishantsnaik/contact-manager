@@ -2,6 +2,7 @@ package com.nishant.contacts.controller;
 
 import com.nishant.contacts.dto.Contact;
 import com.nishant.contacts.exception.InvalidQueryException;
+import com.nishant.contacts.exception.ResourceNotFoundException;
 import com.nishant.contacts.service.ContactService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -33,25 +35,20 @@ public class Controller {
     TODO dateofbirth input to check for correct format
      */
 
-    @GetMapping("id/{contactId)")
+    @GetMapping("contactId/{contactId}")
     @ApiOperation(value="Find contact by contact ID", notes = "Find contact by contact ID")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact findContactByContactId(@PathVariable Long contactId){
+    public Contact findContactByContactId(@PathVariable(name = "contactId") Long contactId) {
 
-        //TODO add exception handling
+        Contact contact = service.findOne(Long.valueOf(contactId));
 
-        if(contactId != null){
-
-            return service.findOne(Long.valueOf(contactId));
-        }/*else if(lastName != null){
-
-            return service.findOne(lastName, firstName, dateOfBirth);
-        }else {
-            // return invalid query exception
-        }*/
-        return service.findOne(Long.valueOf(contactId));
+        if (contact != null) {
+            return contact;
+        } else {
+            throw new ResourceNotFoundException("contactId:" + contactId);
+        }
     }
 
     @GetMapping
@@ -59,17 +56,21 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public List<Contact> findContacts(@RequestParam(required = false) String lastName, @RequestParam(required = false) String firstName, @RequestParam(required = false) String dateOfBirth){
+    public List<Contact> findContacts(@RequestParam(required = false) String lastName, @RequestParam(required = false) String firstName, @RequestParam(required = false) String dateOfBirth) {
 
-        //TODO add exception handling
         //TODO add validation if lastname id available but no first name or dateofbirth
 
-        if(lastName != null){
-
-            return Arrays.asList(service.findOne(lastName, firstName, dateOfBirth));
-        } else {
+        if (lastName == null) {
             return service.findAll();
         }
+
+        List<Contact> contacts = service.findContactByLastNameAndFirstNameAndDateOfBirth(lastName, firstName, dateOfBirth);
+        if (contacts != null && contacts.size() > 0) {
+            return contacts;
+        } else {
+            throw new ResourceNotFoundException("lastName:" + lastName);
+        }
+
     }
 
 
@@ -78,7 +79,7 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =201, message = "Created"),
             @ApiResponse(code =400, message = "Bad Request-Contact Already exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public ResponseEntity<Object> createContact(@RequestBody Contact contact){
+    public ResponseEntity<Object> createContact(@Valid @RequestBody Contact contact){
 
         Contact createdContact =service.createContact(contact);
 
@@ -92,8 +93,14 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =201, message = "Updated"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact updateContact(@PathVariable Long contactId, @RequestBody Contact contact){
-        return service.update(contactId, contact);
+    public Contact updateContact(@PathVariable Long contactId, @Valid @RequestBody Contact contact){
+        Contact updatedContact = service.update(contactId, contact);
+
+        if(updatedContact == null){
+            throw new ResourceNotFoundException("id:" + contactId);
+        }
+
+        return updatedContact;
     }
 
     @DeleteMapping("{contactId)")

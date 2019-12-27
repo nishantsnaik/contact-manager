@@ -1,5 +1,6 @@
 package com.nishant.contacts.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -28,11 +30,11 @@ public class Contact {
     private Integer contactId;
 
     @ApiModelProperty(notes="First Name should be 3 to 15 chars")
-    @Size(min = 3, max = 15, message = "must have between 3 and 15 characters")
+    @Size(min = 3, max = 10, message = "must have between 3 and 10 characters")
     private String firstName;
 
-    @ApiModelProperty(notes="First Name should be 3 to 15 chars")
-    @Size(min = 3, max = 15, message = "must have between 3 and 15 characters")
+    @ApiModelProperty(notes="First Name should be 3 to 10 chars")
+    @Size(min = 3, max = 10, message = "must have between 3 and 15 characters")
     private String lastName;
 
     @ApiModelProperty(notes="First Name should be 1 chars")
@@ -43,7 +45,8 @@ public class Contact {
     @Size(min = 1, max = 1, message = "must have between 1 characters")
     private String gender;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @ApiModelProperty(notes="Date format should be in: yyyy-MM-dd")
     @Past
-    private String dateOfBirth;
+    private ZonedDateTime dateOfBirth;
 }
