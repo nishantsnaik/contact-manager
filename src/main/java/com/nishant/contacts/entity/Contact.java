@@ -1,19 +1,12 @@
 package com.nishant.contacts.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -22,14 +15,23 @@ import java.util.UUID;
 @Entity
 public class Contact {
 
-    public Contact(){
+    /*public Contact(){
         this.id = UUID.randomUUID().toString();
-    }
+    }*/
+
+    /*@Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private String id;*/
 
     @Id
-    private String id;
-
-    @Column(length = 6, unique = true)
+    @SequenceGenerator(name = "contactIdSequenceGen", sequenceName = "contactIdSequence", initialValue = 100001, allocationSize = 1)
+    @GeneratedValue(generator = "contactIdSequenceGen")
+    @Column(length = 6, updatable = false, nullable = false)
     private Integer contactId;
 
     @Column(length = 20)
@@ -44,7 +46,8 @@ public class Contact {
     @Column(length = 1)
     private String gender;
 
-    private LocalDate dateOfBirth;
+    private Date dateOfBirth;
 
 
 }
+

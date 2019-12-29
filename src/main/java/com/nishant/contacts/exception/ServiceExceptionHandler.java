@@ -36,6 +36,16 @@ public class ServiceExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidQueryException.class)
+    public ResponseEntity<Object> handleInvalidQueryException(InvalidQueryException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .exceptionDateTime(ZonedDateTime.now())
+                .exceptionDetails(request.getDescription(false))
+                .exceptionMessage(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @Override
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()

@@ -1,5 +1,8 @@
 package com.nishant.contacts.controller;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.nishant.contacts.dto.Contact;
 import com.nishant.contacts.exception.InvalidQueryException;
 import com.nishant.contacts.exception.ResourceNotFoundException;
@@ -8,12 +11,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Arrays;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -26,13 +30,28 @@ public class Controller {
         this.service = service;
     }
     /*
-    TODO Add exception handling
     TODO Add Mappers
     TODO Add log4j
     TODO remove hard coding in service layer
     TODO Do not expose contactID in post, return it back in response
+    TODO Add hateos
+    TODO internationalization
+    TODO security
+     */
+
+    /********Date of Birth changes
     TODO dateofbirth correct conversion as applicable
     TODO dateofbirth input to check for correct format
+    TODO add validation to cheack strng date with specific fomat and in past
+    TODO once above step completed, change input string to zoneddatetime and add validations, mappers as applicable
+     */
+
+    /**************duplicate post request*****************/
+    /*
+    TODO Add another field to store nick name to support duplicate
+    TODO if the same request comes twice, but needs to be persisted, they have to come with unique nickname
+    TODO if the same nickname is sent, send the object with a indicator that says already exists
+    TODO nickname should be unique
      */
 
     @GetMapping("contactId/{contactId}")
@@ -40,12 +59,18 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact findContactByContactId(@PathVariable(name = "contactId") Long contactId) {
+    public MappingJacksonValue findContactByContactId(@PathVariable(name = "contactId") Integer contactId) {
 
-        Contact contact = service.findOne(Long.valueOf(contactId));
+        Contact contact = service.findOne(contactId);
+
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("gender","firstName","lastName");
+        FilterProvider filters = new SimpleFilterProvider().addFilter("ContactFilter", filter);
+        MappingJacksonValue mappings = new MappingJacksonValue(contact);
+        mappings.setFilters(filters);
 
         if (contact != null) {
-            return contact;
+            //return contact;
+            return mappings;
         } else {
             throw new ResourceNotFoundException("contactId:" + contactId);
         }
@@ -56,21 +81,30 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public List<Contact> findContacts(@RequestParam(required = false) String lastName, @RequestParam(required = false) String firstName, @RequestParam(required = false) String dateOfBirth) {
+    public MappingJacksonValue findContacts(@RequestParam(required = false) String lastName, @RequestParam(required = false) String firstName, @RequestParam(required = false) String dateOfBirth) {
 
-        //TODO add validation if lastname id available but no first name or dateofbirth
-
+        List<Contact> contacts = null;
         if (lastName == null) {
-            return service.findAll();
-        }
-
-        List<Contact> contacts = service.findContactByLastNameAndFirstNameAndDateOfBirth(lastName, firstName, dateOfBirth);
-        if (contacts != null && contacts.size() > 0) {
-            return contacts;
+            contacts = service.findAll();
         } else {
-            throw new ResourceNotFoundException("lastName:" + lastName);
+
+            try {
+                contacts = service.findContactByRequestParams(lastName, firstName, dateOfBirth);
+            } catch (ParseException ex) {
+                throw new InvalidQueryException("Date shoule be in the format yyyy-MM-dd");
+            }
         }
 
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("gender", "firstName", "lastName", "contactId");
+        FilterProvider filters = new SimpleFilterProvider().addFilter("ContactFilter", filter);
+        MappingJacksonValue mappings = new MappingJacksonValue(contacts);
+        mappings.setFilters(filters);
+
+        if (lastName != null && (contacts == null || contacts.size() == 0)) {
+            throw new ResourceNotFoundException("lastName:" + lastName);
+        } else {
+            return mappings;
+        }
     }
 
 
@@ -81,7 +115,12 @@ public class Controller {
             @ApiResponse(code =500, message = "Internal Server Error")})
     public ResponseEntity<Object> createContact(@Valid @RequestBody Contact contact){
 
-        Contact createdContact =service.createContact(contact);
+        Contact createdContact = null;
+        try {
+            createdContact =service.createContact(contact);
+        } catch (ParseException ex) {
+            throw new InvalidQueryException("Date shoule be in the format yyyy-MM-dd");
+        }
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{contactId}")
                 .buildAndExpand(createdContact.getContactId()).toUri();
@@ -93,7 +132,7 @@ public class Controller {
     @ApiResponses(value = {@ApiResponse(code =201, message = "Updated"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact updateContact(@PathVariable Long contactId, @Valid @RequestBody Contact contact){
+    public Contact updateContact(@PathVariable Long contactId, @RequestBody Contact contact){
         Contact updatedContact = service.update(contactId, contact);
 
         if(updatedContact == null){

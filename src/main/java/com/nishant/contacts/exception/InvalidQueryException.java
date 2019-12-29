@@ -1,12 +1,12 @@
 package com.nishant.contacts.exception;
 
-public class InvalidQueryException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public InvalidQueryException (String message) {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class InvalidQueryException extends RuntimeException {
 
-    }
-
-    public InvalidQueryException() {
-
+    public InvalidQueryException(String message) {
+        super(message);
     }
 }
