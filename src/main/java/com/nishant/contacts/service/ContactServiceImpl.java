@@ -73,13 +73,24 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Contact update(Long contactId, Contact contact) {
-        return Contact.builder().contactId(95675).firstName("Nishant").lastName("Naik").gender("M").middleName("S")
-                .build();
+    public Contact update(int contactId, Contact contact)  throws ParseException {
+
+        if(isContactExists(contact)){
+            return contact;
+        }
+        contact.setContactId(contactId);
+
+        com.nishant.contacts.entity.Contact updatedContact = contactRepository.save(contactMapper.serviceToRepo(contact));
+
+        return contactMapper.repoToService(updatedContact);
     }
 
     @Override
-    public void delete(Long contactId) {
+    public void delete(int contactId) {
+
+        com.nishant.contacts.entity.Contact existingContact = contactRepository.findByContactId(contactId);
+
+        contactRepository.deleteById(contactId);
 
     }
 

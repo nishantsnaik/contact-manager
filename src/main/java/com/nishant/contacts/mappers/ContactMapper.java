@@ -13,11 +13,11 @@ public interface ContactMapper {
 
     @Mappings({
             @Mapping(target="dateOfBirth", source = "dateOfBirth",
-                    dateFormat = "MM-dd-yyyy")})
+                    dateFormat = "yyyy-MM-dd")})
     Contact serviceToRepo(com.nishant.contacts.dto.Contact serviceContact);
     @Mappings({
             @Mapping(target="dateOfBirth", source = "dateOfBirth",
-                    dateFormat = "MM-dd-yyyy HH:mm:ss")})
+                    dateFormat = "yyyy-MM-dd HH:mm:ss")})
     com.nishant.contacts.dto.Contact repoToService(Contact repoContact);
 }
 

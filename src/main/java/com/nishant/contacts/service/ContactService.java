@@ -12,8 +12,8 @@ public interface ContactService {
     public List<Contact> findContactByRequestParams(String lastName, String firstName, String dateOfBirth)
             throws ParseException;
     public Contact createContact(Contact contact) throws ParseException;
-    public Contact update(Long contactId,  Contact contact);
-    public void delete(Long contactId);
+    public Contact update(int contactId,  Contact contact) throws ParseException ;
+    public void delete(int contactId);
 
 
 }

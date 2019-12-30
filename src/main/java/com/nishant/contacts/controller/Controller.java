@@ -18,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.List;
 
 @RestController
@@ -30,19 +31,15 @@ public class Controller {
         this.service = service;
     }
     /*
-    TODO Add Mappers
     TODO Add log4j
-    TODO remove hard coding in service layer
-    TODO Do not expose contactID in post, return it back in response
     TODO Add hateos
     TODO internationalization
     TODO security
      */
 
-    /********Date of Birth changes
-    TODO dateofbirth correct conversion as applicable
-    TODO dateofbirth input to check for correct format
-    TODO add validation to cheack strng date with specific fomat and in past
+    /********Date of Birth changes*************/
+    /*
+    TODO create new annotataion to check for input string date format for input and to see if its in the past
     TODO once above step completed, change input string to zoneddatetime and add validations, mappers as applicable
      */
 
@@ -54,12 +51,12 @@ public class Controller {
     TODO nickname should be unique
      */
 
-    @GetMapping("contactId/{contactId}")
+    @GetMapping("id/{contactId}")
     @ApiOperation(value="Find contact by contact ID", notes = "Find contact by contact ID")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public MappingJacksonValue findContactByContactId(@PathVariable(name = "contactId") Integer contactId) {
+    public MappingJacksonValue findContactByContactId(@PathVariable Integer contactId) {
 
         Contact contact = service.findOne(contactId);
 
@@ -83,7 +80,7 @@ public class Controller {
             @ApiResponse(code =500, message = "Internal Server Error")})
     public MappingJacksonValue findContacts(@RequestParam(required = false) String lastName, @RequestParam(required = false) String firstName, @RequestParam(required = false) String dateOfBirth) {
 
-        List<Contact> contacts = null;
+        List<Contact> contacts;
         if (lastName == null) {
             contacts = service.findAll();
         } else {
@@ -127,27 +124,36 @@ public class Controller {
         return ResponseEntity.created(location).build();
     }
 
-    @PutMapping("{contactId)")
+    @PutMapping("id/{contactId}")
     @ApiOperation(value="Update a contact", notes = "Update a contact")
     @ApiResponses(value = {@ApiResponse(code =201, message = "Updated"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public Contact updateContact(@PathVariable Long contactId, @RequestBody Contact contact){
-        Contact updatedContact = service.update(contactId, contact);
+    public MappingJacksonValue updateContact(@PathVariable Integer contactId, @Valid @RequestBody Contact contact){
+        Contact updatedContact = null;
+        try {
+            updatedContact = service.update(contactId, contact);
+        } catch (ParseException ex) {
+            throw new InvalidQueryException("Date shoule be in the format yyyy-MM-dd");
+        }
+
+        FilterProvider filters = new SimpleFilterProvider().addFilter("ContactFilter", SimpleBeanPropertyFilter.serializeAllExcept(new HashSet<>()));
+        MappingJacksonValue mappings = new MappingJacksonValue(updatedContact);
+        mappings.setFilters(filters);
 
         if(updatedContact == null){
             throw new ResourceNotFoundException("id:" + contactId);
         }
 
-        return updatedContact;
+        return mappings;
     }
 
-    @DeleteMapping("{contactId)")
+    @DeleteMapping("id/{contactId}")
     @ApiOperation(value="Delete a contact", notes = "Delete a  contact")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Deleted"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),
             @ApiResponse(code =500, message = "Internal Server Error")})
-    public void deleteContact(@PathVariable Long contactId){
+    public void deleteContact(@PathVariable Integer contactId){
         service.delete(contactId);
     }
 
