@@ -1,0 +1,26 @@
+#server:
+#  port: 8080
+#  servlet:
+#    context-path: /api
+
+##spring.security.user.name: bankapp
+##spring.security.user.password: changeit
+
+spring:
+  cloud:
+    config:
+      uri: http://localhost:8888
+
+  application:
+    name: contactbook
+#
+#kafka:
+#  bootstrapAddress: localhost:9092
+#message:
+#  topic:
+#    name: profile
+
+
+
+
+

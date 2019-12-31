@@ -51,6 +51,11 @@ public class Controller {
     TODO nickname should be unique
      */
 
+    /*
+    TODO Address service to manage addresses
+    TODO conect using Feign and Ribbon
+     */
+
     @GetMapping("id/{contactId}")
     @ApiOperation(value="Find contact by contact ID", notes = "Find contact by contact ID")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
