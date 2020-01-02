@@ -54,6 +54,16 @@ public class Controller {
     /*
     TODO Address service to manage addresses
     TODO conect using Feign and Ribbon
+    TODO create multiple instances of adresses, and call from contacts using feign and ribbon for load balancing
+     */
+
+    /*
+    Implement Zuul
+    Use zuul for:
+    Authentication, authorization and Security
+    Rate Limits
+    Fault Tolerence
+    Service Affregation
      */
 
     @GetMapping("id/{contactId}")

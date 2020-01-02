@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+
+######## removed spring cloud config ##################
+#  cloud:
+#    config:
+#      uri: http://localhost:8888
+
+  application:
+    name: contactbook
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      format_sql: true
+      ddl-auto: create-drop
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/data/co ntactbook
+    username: sa
+    password:
+
+
+
+#
+#kafka:
+#  bootstrapAddress: localhost:9092
+#message:
+#  topic:
+#    name: profile
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
