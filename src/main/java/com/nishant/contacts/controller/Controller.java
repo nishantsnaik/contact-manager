@@ -52,12 +52,6 @@ public class Controller {
      */
 
     /*
-    TODO Address service to manage addresses
-    TODO conect using Feign and Ribbon
-    TODO create multiple instances of adresses, and call from contacts using feign and ribbon for load balancing
-     */
-
-    /*
     Implement Zuul
     Use zuul for:
     Authentication, authorization and Security
@@ -66,7 +60,7 @@ public class Controller {
     Service Affregation
      */
 
-    @GetMapping("id/{contactId}")
+    @GetMapping("{contactId}")
     @ApiOperation(value="Find contact by contact ID", notes = "Find contact by contact ID")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Success"),
             @ApiResponse(code =404, message = "Not Found"),
@@ -75,7 +69,7 @@ public class Controller {
 
         Contact contact = service.findOne(contactId);
 
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("gender","firstName","lastName");
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("gender","firstName","lastName","countryCode");
         FilterProvider filters = new SimpleFilterProvider().addFilter("ContactFilter", filter);
         MappingJacksonValue mappings = new MappingJacksonValue(contact);
         mappings.setFilters(filters);
@@ -139,7 +133,7 @@ public class Controller {
         return ResponseEntity.created(location).build();
     }
 
-    @PutMapping("id/{contactId}")
+    @PutMapping("{contactId}")
     @ApiOperation(value="Update a contact", notes = "Update a contact")
     @ApiResponses(value = {@ApiResponse(code =201, message = "Updated"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),
@@ -163,7 +157,7 @@ public class Controller {
         return mappings;
     }
 
-    @DeleteMapping("id/{contactId}")
+    @DeleteMapping("{contactId}")
     @ApiOperation(value="Delete a contact", notes = "Delete a  contact")
     @ApiResponses(value = {@ApiResponse(code =200, message = "Deleted"),
             @ApiResponse(code =400, message = "Bad Request-Contact does not exists"),

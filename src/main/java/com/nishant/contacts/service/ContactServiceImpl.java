@@ -1,12 +1,16 @@
 package com.nishant.contacts.service;
 
 import com.google.common.collect.Lists;
+import com.netflix.discovery.converters.Auto;
+import com.nishant.contacts.client.AddressBookServiceProxy;
 import com.nishant.contacts.dto.Contact;
 import com.nishant.contacts.mappers.ContactMapper;
 import com.nishant.contacts.repository.ContactRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +24,9 @@ public class ContactServiceImpl implements ContactService {
 
     @Autowired
     private ContactRepository contactRepository;
+
+    @Autowired
+    private AddressBookServiceProxy addressBookServiceProxy;
 
     private final ContactMapper contactMapper = Mappers.getMapper(ContactMapper.class);
 
@@ -42,8 +49,18 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Contact findOne(int contactId) {
-        com.nishant.contacts.entity.Contact contact = contactRepository.findByContactId(contactId);
-        return contactMapper.repoToService(contact);
+        com.nishant.contacts.entity.Contact contactFromRepo = contactRepository.findByContactId(contactId);
+        Contact contact = contactMapper.repoToService(contactFromRepo);
+
+        List<Object> addresses = (List<Object>) addressBookServiceProxy.findAddress(contactId);
+
+        Map address = (Map) addresses.get(0);
+
+        Map<String, Integer> uriVariables = new HashMap<>();
+
+        String countryCode = (String) address.get("country");
+        contact.setCountryCode(countryCode);
+        return contact;
     }
 
     @Override

@@ -64,4 +64,8 @@ public class Contact {
     @NotNull(message = "dateOfBirth cannot be null")
     //@Past
     private String dateOfBirth;
+
+    @ApiModelProperty(notes="Countr Code should be 2 chars")
+    @Size(min = 2, max = 2, message = "must have 2 characters")
+    private String countryCode;
 }

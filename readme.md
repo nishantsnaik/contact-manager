@@ -24,7 +24,9 @@ http://localhost:8761
 port: 8765
 
 ##### Calling contactbook through zuul:
-http://localhost:8765/contactbook/api/contacts/id/100001
+http://localhost:8765/contact-book/api/contacts/100001
+##### Calling addressbook through zuul:
+http://localhost:8765/address-book/api/contacts/100001/addresses
 
 ##### Calling contactbook directly:
 http://localhost:8080/api/contacts/id/100001
